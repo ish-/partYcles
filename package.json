@@ -1,0 +1,25 @@
+{
+  "name": "partycles",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "snowpack dev --port 8081",
+    "build": "snowpack build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bokal-sourage": "^0.0.3",
+    "ish-utils": "^0.0.1",
+    "js-quadtree": "^3.3.6",
+    "query-string": "^7.0.1",
+    "simplex-noise": "^3.0.0",
+    "tweakpane": "^3.0.5"
+  },
+  "devDependencies": {
+    "snowpack": "^3.8.8"
+  }
+}

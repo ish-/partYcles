@@ -1,0 +1,49 @@
+html { overflow: hidden }
+
+* { margin: 0; padding: 0 }
+.sk-canvas { 
+  width: 100%;
+  height: 100%;
+  cursor: cell;
+}
+.sk-stats {
+  color: white;
+  position: absolute;
+  top: 8px; left: 8px;
+  font: 10px Helvetica;
+  white-space: pre;
+
+  background: rgba(0, 0, 0, .6);
+  padding: 4px 6px;
+  border-radius: 5px;
+}
+
+.filters { display:  none }
+
+.tp-dfwv { /* // cont */
+  overflow: hidden;
+  max-height: 98%;
+  max-width: 256px;
+  border-radius: 6px;
+}
+
+.tp-rotv { /* // list-cont */
+  overflow: scroll;
+  max-height: 98vh;
+  position: relative;
+  width: 300px;
+}
+
+.tp-brkv { /* // list */
+  max-width: 256px;
+}
+
+.tp-lblv.tp-lblv-nol {
+  width: 120px;
+  display: inline-block !important;
+  padding-right: 0;
+}
+
+.tp-fldv_c>.tp-cntv {
+  margin-left: 0;
+}

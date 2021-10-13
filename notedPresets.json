@@ -1,0 +1,268 @@
+{
+  "Blue Turb Vibr Ice (test mic)": {
+    "translate": {
+      "x": 0,
+      "y": 5
+    },
+    "contrast": 1.108695652173913,
+    "invContrast": false,
+    "blur": 3.369565217391304,
+    "opacity": 0.511,
+    "opacityCanv": 0.011,
+    "morphRad": 4.348,
+    "edgeRadOn": true,
+    "edgeRad": 7.957,
+    "color": "Kek",
+    "size": 0,
+    "attract": true,
+    "amount": 707,
+    "flock": 0.5869565217391305,
+    "align": 1,
+    "distance": 88.3695652173913,
+    "mult": 2.0652173913043477,
+    "mirrorEdges": false,
+    "wind": -1.4347826086956523,
+    "gravity": 3,
+    "turbulence": true,
+    "turbMorph": 0.3913043478260869,
+    "contrastVibr": {
+      "x": 1,
+      "y": 0
+    },
+    "blurVibr": {
+      "x": 0.42000000000000004,
+      "y": 1.9000000000000001
+    },
+    "sizeVibr": {
+      "x": 0.49999999999999534,
+      "y": 2
+    }
+  },
+  "test mic wave": {
+    "translate": {
+      "x": -1,
+      "y": 1.6999999999999997
+    },
+    "contrast": 0.9782608695652174,
+    "invContrast": false,
+    "blur": 1.5217391304347827,
+    "opacity": 1,
+    "opacityCanv": 1,
+    "morphRad": 0.87,
+    "edgeRadOn": true,
+    "edgeRad": 7.478,
+    "color": "April",
+    "size": 0,
+    "attract": true,
+    "amount": 11,
+    "flock": 0.5869565217391305,
+    "align": 1.608695652173913,
+    "distance": 104.51086956521739,
+    "mult": 10,
+    "mirrorEdges": false,
+    "wind": 0,
+    "gravity": 0,
+    "turbulence": false,
+    "turbMorph": 0.3913043478260869,
+    "contrastVibr": {
+      "x": 1,
+      "y": 0.01
+    },
+    "blurVibr": {
+      "x": 0.42000000000000004,
+      "y": 0
+    },
+    "sizeVibr": {
+      "x": 0.49999999999999534,
+      "y": 0
+    }
+  },
+  "test mic wave 2": {
+    "translate": {
+      "x": 0,
+      "y": 1.6999999999999997
+    },
+    "contrast": 1,
+    "invContrast": false,
+    "blur": 1.5217391304347827,
+    "opacity": 0.5760000000000001,
+    "opacityCanv": 0.467,
+    "morphRad": 0.87,
+    "edgeRadOn": true,
+    "edgeRad": 7.478,
+    "color": "April",
+    "size": 0,
+    "attract": true,
+    "amount": 11,
+    "flock": 0.5869565217391305,
+    "align": 1.608695652173913,
+    "distance": 104.51086956521739,
+    "mult": 10,
+    "mirrorEdges": false,
+    "wind": 0,
+    "gravity": 0,
+    "turbulence": false,
+    "turbMorph": 0.3913043478260869,
+    "contrastVibr": {
+      "x": 1,
+      "y": 0.01
+    },
+    "blurVibr": {
+      "x": 0.42000000000000004,
+      "y": 0
+    },
+    "sizeVibr": {
+      "x": 0.49999999999999534,
+      "y": 0
+    }
+  },
+  "test mic wave 3": {
+    "translate": {
+      "x": 0.81,
+      "y": -2.65
+    },
+    "contrast": 1.0108695652173914,
+    "invContrast": false,
+    "blur": 1.5217391304347827,
+    "opacity": 0.533,
+    "opacityCanv": 0.467,
+    "morphRad": 0.87,
+    "edgeRadOn": true,
+    "edgeRad": 9,
+    "color": "April",
+    "size": 0,
+    "attract": true,
+    "amount": 11,
+    "flock": 0.5869565217391305,
+    "align": 0.9782608695652174,
+    "distance": 63.42391304347826,
+    "mult": 3.4782608695652173,
+    "mirrorEdges": false,
+    "wind": 0,
+    "gravity": 0,
+    "turbulence": false,
+    "turbMorph": 0.3913043478260869,
+    "contrastVibr": {
+      "x": 1,
+      "y": 0.02
+    },
+    "blurVibr": {
+      "x": 0.42000000000000004,
+      "y": 0
+    },
+    "sizeVibr": {
+      "x": 0.49999999999999534,
+      "y": 0
+    }
+  },
+  "test mic wave CHAIKI": {
+    "translate": {
+      "x": -2.0000000000000004,
+      "y": 1
+    },
+    "contrast": 1.0110000000000001,
+    "invContrast": false,
+    "blur": 1.5217391304347827,
+    "opacity": 0.533,
+    "opacityCanv": 0.467,
+    "morphRad": 0.87,
+    "edgeRadOn": true,
+    "edgeRad": 9,
+    "color": "April",
+    "size": 0,
+    "attract": true,
+    "amount": 11,
+    "flock": 0.5869565217391305,
+    "align": 0.9782608695652174,
+    "distance": 63.42391304347826,
+    "mult": 3.4782608695652173,
+    "mirrorEdges": false,
+    "wind": 0,
+    "gravity": 0,
+    "turbulence": false,
+    "turbMorph": 0.3913043478260869,
+    "contrastVibr": {
+      "x": 1,
+      "y": 0.01
+    },
+    "blurVibr": {
+      "x": 0.42000000000000004,
+      "y": 0
+    },
+    "sizeVibr": {
+      "x": 0.49999999999999534,
+      "y": 0
+    }
+  },
+  "prikolno": {
+    "translate": {
+      "x": 0,
+      "y": -2.5999999999999996
+    },
+    "contrast": 0.999,
+    "invContrast": false,
+    "blur": 1.522,
+    "opacity": 1,
+    "opacityCanv": 0.685,
+    "morphRad": 1.304,
+    "edgeRadOn": true,
+    "edgeRad": 9,
+    "color": "April",
+    "size": 0,
+    "attract": true,
+    "amount": 20,
+    "flock": 0.5869565217391305,
+    "align": 0.9782608695652174,
+    "distance": 88.3695652173913,
+    "mult": 3.9130434782608696,
+    "mirrorEdges": false,
+    "wind": 0,
+    "gravity": 0,
+    "turbulence": false,
+    "turbMorph": 0.3913043478260869,
+    "contrastVibr": {
+      "x": 1,
+      "y": 0
+    },
+    "blurVibr": {
+      "x": 0.42000000000000004,
+      "y": 0
+    },
+    "sizeVibr": {
+      "x": 0.49999999999999534,
+      "y": 0
+    }
+  },
+
+  "Blue Turb (test)": {
+    "translate": {
+      "x": 0,
+      "y": 0
+    },
+    "contrast": 1.11,
+    "invContrast": false,
+    "blur": 3.369565217391304,
+    "opacity": 0.783,
+    "opacityCanv": 0.021739130434782608,
+    "morphRad": 0,
+    "edgeRadOn": true,
+    "edgeRad": 7.957,
+    "color": "Kek",
+    "size": 0.9130434782608696,
+    "attract": true,
+    "amount": 522,
+    "flock": 0.5869565217391305,
+    "align": 1,
+    "distance": 88.3695652173913,
+    "mult": 4.456521739130435,
+    "mirrorEdges": true,
+    "wind": 0,
+    "gravity": 0,
+    "turbulence": true,
+    "turbMorph": 1,
+    "contrastVibr": {
+      "x": 0.8,
+      "y": 0
+    }
+  },
+}

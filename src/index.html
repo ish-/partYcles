@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+  <link rel="stylesheet" href="./reset.css">
+  <!-- <script type="module" src="/web_modules/victor.js"></script> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /*.Sketch { width: 1280px !important; height: 720px !important; }*/
+  </style>
+</head>
+<body>
+  <svg class="filters" xmlns="http://www.w3.org/2000/svg" version="1.1" width="0%" height="0%">
+    <filter id="TurbNoise">
+      <feTurbulence id="TurbNoiseParams" baseFrequency=".003,.003" width="100%" height="100%" top="0%" type="turbulence" numOctaves="2" seed="600" result="turb" stitchTiles="stitch" />
+      <feColorMatrix type="saturate" values="2"/>
+    </filter>
+    <filter id="EdgeDetect">
+      <feConvolveMatrix id="EdgeDetectParams" order="3 3" preserveAlpha="true" kernelMatrix="-1 -1 -1 -1 8 -1 -1 -1 -1"/>
+    </filter>
+    <filter id="Morph">
+      <feMorphology id="MorphParams" operator="dilate" radius="2" />
+      <!-- <feMorphology id="MorphParams" operator="dilate" radius="2" /> -->
+    </filter>
+  </svg>
+  <script src="./main.js" type="module"></script>
+</body>
+</html>
