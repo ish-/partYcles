@@ -6,20 +6,20 @@ import { checkEdges, checkEdgesMirror } from './utils/common';
 import Simplex from 'simplex-noise';
 import * as QT from 'js-quadtree';
 
+import TurbulenceField from './TurbulenceField';
+
 console.log('worker.js', 'Inited');
 
 let qt = new QT.QuadTree();
 let useQuadTree = false;
 const qtConfig = { capacity: 8, maximumDepth: 15 };
 
-const simplex = new Simplex(rand(0, 1e6));
-let NOISE_RES = .05;
-let NW;
-let NH;
-let NSCALE = .07;
-let turbField = [];
-let _turbMorph = 0;
-let ttc = 0;
+const turbField = new TurbulenceField({
+  mult: .1,
+  scale: .0035,
+  seed: rand(0, 1e6),
+});
+let turbMorph = 0;
 
 let circles = [];
 let P = {
@@ -34,7 +34,6 @@ let P = {
   gravity: 0,
   amount: 0,
   turbulence: false,
-  turbField: null,
   turbMorph: 1,
   quadTree: true,
 };
@@ -118,37 +117,12 @@ const cmds = {
     const { width = W, height = H, amount = P.amount, arrangement = 'twoPoints' } = opts;
     P.amount = amount;
     iters = 0;
-    this.setTurbField();
     circles.length = 0;
     for (let i = 0; i < amount; i++) {
       circles.push(arrangements[arrangement](i))
     }
 
     return circles;
-  },
-
-  setTurbField () {
-    if (P.turbMorph === 0)
-      return;
-
-    const boxes = Array(21).fill(0);
-    NW = Math.ceil(W * NOISE_RES);
-    NH = Math.ceil(H * NOISE_RES);
-    turbField = Array(NW * NH);
-    for (let i = 0; i <= NW; i++) { // x
-      for (let k = 0; k <= NH; k++) { // y
-        let v = simplex.noise3D(i*NSCALE, k*NSCALE, _turbMorph * .0005);
-        // v = Math.sqrt(Math.abs(v)) * (v < 0 ? -1 : 1);
-        if (P.mirrorEdges) {
-          v = doubleExponentialSigmoid((v + 1) / 2, .45) * 2 - 1;
-          v = clamp(-1, 1, v * 1.1);
-        }
-        boxes[Math.round((v + 1) * 10)]++;
-        turbField[i*NW+k] = Vec.fromAngle(v * Math.PI).mult(.3);
-      }
-    }
-    // console.log(boxes);
-    _turbMorph += P.turbMorph;
   },
 
   resize ({ width, height }) {
@@ -164,7 +138,8 @@ const cmds = {
   update ({ mouse }) {
     let wind = new Vec(P.wind/80, P.gravity/80);
     wind = wind.mag() && wind;
-    P.turbulence && this.setTurbField();
+    if (P.turbulence)
+      turbMorph += P.turbMorph / 7;
 
     let percept = lesserSide / 4;
 
@@ -205,14 +180,14 @@ const cmds = {
       }
 
       const bound = 240;
+
       if (P.turbulence) {
-        const nx = (circle.pos.x * NOISE_RES)|0;
-        const ny = (circle.pos.y * NOISE_RES)|0;
-        const nForce = turbField[nx * NW + ny] || new Vec(0,0);
-        const distToEdge = W/ 2 - Math.abs(W/2 - circle.pos.x);
-        if (distToEdge < bound)
-          nForce.mult(1 - smoothstep(W/2 - bound, W/2, distToEdge) / bound);
-        circle.applyForce(nForce);
+        const turbForce = turbField.getForce(
+          { ...circle.pos, z: turbMorph },
+          { bound: 240, W, H },
+        );
+
+        circle.applyForce(turbForce);
       }
 
       if (P.mirrorEdges)

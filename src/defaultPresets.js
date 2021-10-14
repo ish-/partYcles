@@ -64,7 +64,7 @@ export default {
     "iDist": 85,
     "iMult": 1,
     "iEdgesMirror": false,
-    "gravity": true,
+    "gravity": 0,
     "turbulence": true,
     "contrastVibr": {
       "x": 3,
