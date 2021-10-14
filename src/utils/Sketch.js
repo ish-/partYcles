@@ -24,8 +24,6 @@ export default class Sketch {
     this.now = Date.now();
     this.perfStr = '';
 
-    this.$stats = document.createElement('div');
-    this.$stats.className = 'sk-stats';
 
     if (!$el) {
       $el = document.createElement('div');
@@ -33,6 +31,11 @@ export default class Sketch {
       document.body.appendChild($el);
     }
     this.$el = $el;
+
+    this.$stats = document.createElement('div');
+    this.$stats.className = 'sk-stats';
+    this.$el.appendChild(this.$stats);
+
     this.$canvas = document.createElement('canvas');
     this.$el.appendChild(this.$canvas);
     this.$canvas.className = 'sk-canvas';
