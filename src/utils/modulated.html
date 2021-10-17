@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>modulated test</title>
+
+  <!-- No cache -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+
+</head>
+<body>
+</body>
+<script type="module">
+import { Pane } from 'tweakpane';
+import { Modulated, LFO } from './Modulated.js';
+
+const min = -1, max = 1;
+
+const lfos = {
+  sine: new Modulated({
+    min, max,
+    modulator: new LFO({ fn: LFO.SIN }),
+  }),
+
+  tri: new Modulated({
+    min, max,
+    modulator: new LFO({ fn: LFO.TRI }),
+  }),
+
+  rect: new Modulated({
+    min, max,
+    modulator: new LFO({ fn: LFO.RECT }),
+  }),  
+};
+
+const pane = new Pane();
+Object.entries(lfos).forEach(([name, lfo]) => {
+  pane.addMonitor(lfo, 'value', {
+    view: 'graph',
+    label: Math.random(),
+    min: -1, max: 1, interval: 50,
+  });
+});
+
+</script>
+</html>
