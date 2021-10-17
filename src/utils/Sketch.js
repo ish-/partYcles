@@ -3,6 +3,7 @@ import { debounce } from 'ish-utils/common';
 
 const _bindKeys = {
   's': 'savePng',
+  'f': 'toggleFullscreen',
   ' ': 'togglePause',
 };
 
@@ -78,6 +79,13 @@ export default class Sketch {
     a.href = url;
     a.setAttribute('download', 'yeah-' + Date.now().toString());
     a.click();
+  }
+
+  toggleFullscreen () {
+    if (this._fullscreen = !this._fullscreen)
+      document.body.requestFullscreen();
+    else
+      document.exitFullscreen();
   }
 
   togglePause (e) {

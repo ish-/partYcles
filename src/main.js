@@ -2,12 +2,13 @@ import { Pane } from 'tweakpane';
 
 import { askWorker, sendWorker, descriptForWorker,
   record } from './utils/common';
-import { jsonCopy } from 'ish-utils/common';
+import { jsonCopy, objProp } from 'ish-utils/common';
 import { lerp, invlerp } from 'ish-utils/math';
 import qs from './utils/qs';
 
 import { MicAnalyzer, drawSpectrum } from './utils/Audio';
 import { SketchControls, Presets } from './utils/Pane';
+import { SVGFilter, FeMorphology, FeConvolve } from './utils/SVGFilters';
 import Sketch from './utils/Sketch';
 import Offscreen from './utils/Offscreen';
 import palletes from './palletes';
@@ -27,12 +28,6 @@ const circlesWorker = new Worker(new URL('./worker.js', import.meta.url), {
 
 let CIRCLE_R = 3;
 
-const $morph = document.querySelector('#MorphParams');
-const $edge = document.querySelector('#EdgeDetectParams');
-const EDGE_RANGE = [7, 10];
-let pauseCircles = false;
-
-let fullscreen = false;
 let W, H, O = {};
 const art = new Sketch({
   /*width: 1280, height: 720, */
@@ -45,14 +40,7 @@ const art = new Sketch({
     o (e) { fxFld.expanded = !fxFld.expanded },
     i (e) { partsFld.expanded = !partsFld.expanded },
     u (e) { vibrsFld.expanded = !vibrsFld.expanded },
-    b (e) { init() },
-    f (e) {
-      if (fullscreen = !fullscreen)
-        document.body.requestFullscreen();
-      else
-        document.exitFullscreen();
-    },
-    'q' (e) { toggleRecording() },
+    q (e) { toggleRecording() },
     '/': init,
   },
   onResize ({ width, height }) {
@@ -64,37 +52,22 @@ window.$art = art;
 
 const DEFAULTS = defaultPresets[DEFAULT_PRESET];
 
-O = {
-  // ...jsonCopy(DEFAULTS),
+// SVG Filters
+const feMorphology = new FeMorphology({ radius: 2 });
+const morph = new SVGFilter('morph');
+morph.append(feMorphology);
 
-  get morphRad () {
-    const mult = $morph.getAttribute('operator') === 'dilate' ? 1 : -1;
-    return mult * Math.abs(parseFloat($morph.getAttribute('radius')));
-  },
-  set morphRad (v) {
-    $morph.setAttribute('operator', v > 0 ? 'dilate' : 'erode');
-    $morph.setAttribute('radius', (v).toFixed(3));
-    console.log('set morphRad', v);
-    return v;
-  },
+const EDGE_RANGE = [7, 10];
+const feConvolve = new FeConvolve({ radius: 2, edgeRange: EDGE_RANGE });
+const edge = new SVGFilter('edge');
+edge.append(feConvolve);
 
-  get edgeRad () { return parseFloat($edge.getAttribute('kernelMatrix').split(' ')[4]) },
-  set edgeRad (v) {
-    const mat = $edge.getAttribute('kernelMatrix').split(' ');
-    // const mat = Array(9).fill((-v / (v+1)).toFixed(2));
-    if (v === EDGE_RANGE[0]) v = 0;
-    else if (v === (EDGE_RANGE[0] + EDGE_RANGE[1]) / 2) v = v + 0.001;
-    mat[4] = v;
-    console.log('set edgeRad', v);
-    return $edge.setAttribute('kernelMatrix', mat.join(' '));
-  },
-};
-// Object.assign(O, defaults);
+// Options
+objProp.ref(feMorphology, 'radius', O, 'morphRad');
+objProp.ref(feConvolve, 'radius', O, 'edgeRad');
 Object.assign(O, jsonCopy(DEFAULTS));
-// O.edgeRad = O._edgeRad;
-// O.morphRad = O._morphRad;
 
-
+// Worker Options
 descriptForWorker(circlesWorker, 'params', O, 'attract');
 descriptForWorker(circlesWorker, 'params', O, 'distance');
 descriptForWorker(circlesWorker, 'params', O, 'flock');
@@ -107,6 +80,7 @@ descriptForWorker(circlesWorker, 'params', O, 'gravity');
 descriptForWorker(circlesWorker, 'params', O, 'turbulence');
 descriptForWorker(circlesWorker, 'params', O, 'turbMorph');
 
+// Pane Controls
 const pane = window.$pane = new Pane();
 pane.expanded = false;
 
@@ -216,9 +190,6 @@ function init () {
 const mic = new MicAnalyzer();
 mic.onReady = init;
 
-const $turbOffset = document.querySelector('#TurbOffsetParams');
-const $turb = document.querySelector('#TurbParams');
-
 const mon = { avgVol: 0, minVol: 0, dynVol: 0 };
 // const micFld = pane.addFolder({ title: 'Mic [M]' });
 
@@ -265,7 +236,7 @@ function animate (c, circles) {
     null,
     ({ ctx }) => {
       art.ctx.translate(O.translate.x, O.translate.y);
-      art.ctx.filter = `url(#Morph) ${ O.edgeRadOn ? 'url(#EdgeDetect)' : '' } opacity(${ O.opacityCanv })`;
+      art.ctx.filter = `${ morph.url } ${ O.edgeRadOn ? edge.url : '' } opacity(${ O.opacityCanv })`;
     }
   );
 
