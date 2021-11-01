@@ -100,3 +100,10 @@ export function download (blob) {
   a.setAttribute('download', 'yeah-' + Date.now().toString());
   a.click();
 }
+
+export function perf (name) {
+  const start = performance.now();
+  return function perfStop () {
+    return console.log('Perf: ', name, performance.now() - start);
+  }
+}

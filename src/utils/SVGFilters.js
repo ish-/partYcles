@@ -63,11 +63,18 @@ export class FeMorphology extends SVGFilterPrimitive {
   }
 
   get radius () {
+    if ('_radius' in this)
+      return this._radius;
     const mult = this.$el.getAttribute('operator') === 'dilate' ? 1 : -1;
     return mult * Math.abs(parseFloat(this.$el.getAttribute('radius')));
   }
 
   set radius (v) {
+    v = Number(v);
+    if (v === this._radius)
+      return v;
+
+    this._radius = v;
     this.$el.setAttribute('operator', v > 0 ? 'dilate' : 'erode');
     this.$el.setAttribute('radius', Math.abs(v).toFixed(3));
     return v;

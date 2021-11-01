@@ -8,6 +8,7 @@ import qs from './utils/qs';
 
 import { MicAnalyzer, drawSpectrum } from './utils/Audio';
 import { SketchControls, Presets } from './utils/Pane';
+import { Modulated, LFO } from './utils/Modulated';
 import { SVGFilter, FeMorphology, FeConvolve } from './utils/SVGFilters';
 import Sketch from './utils/Sketch';
 import Offscreen from './utils/Offscreen';
@@ -19,6 +20,7 @@ import { checkUserEnv } from './utils/userEnv';
 checkUserEnv();
 
 const DEFAULT_PRESET = 'Default';
+const modedParams = ['None', 'contrast','blur','opacity','opacityCanv','morphRad','edgeRad'];
 
 const circlesWorker = new Worker(new URL('./worker.js', import.meta.url), {
   name: 'circlesWorker',
@@ -63,8 +65,10 @@ const edge = new SVGFilter('edge');
 edge.append(feConvolve);
 
 // Options
-objProp.ref(feMorphology, 'radius', O, 'morphRad');
-objProp.ref(feConvolve, 'radius', O, 'edgeRad');
+// objProp.ref(feMorphology, 'radius', O, 'morphRad');
+// objProp.ref(feConvolve, 'radius', O, 'edgeRad');
+O.spectrum = true;
+O.feedbackOnly = false;
 Object.assign(O, jsonCopy(DEFAULTS));
 
 // Worker Options
@@ -96,9 +100,11 @@ const { toggleRecording } = new SketchControls(ctrls, art, init);
 if (!O.hasOwnProperty('micOn'))
   O.micOn = true;
 ctrls.addInput(O, 'micOn');
+ctrls.addInput(O, 'spectrum');
 
 const step = .001;
 const fxFld = ctrls.addFolder({ title: 'Effects [O]' });
+fxFld.addInput(O, 'feedbackOnly');
 fxFld.addInput(O, 'translate', {
   x: { min: -5, max: 5 },
   y: { min: -5, max: 5 },
@@ -147,6 +153,57 @@ vibrsFld.addInput(O, 'sizeVibr', {
   y: { min: 0, max: 3 },
 });
 
+const NONE_TARGET = 'None';
+const lfoFld = ctrls.addFolder({ title: 'LFOs [L]' });
+
+// LFO 1
+// O.lfo1target = NONE_TARGET;
+
+
+function addLFO (name) {
+  const lfo = new LFO({ amp: .5, freq: 1 });
+
+  const modulated = new Modulated({ modulator: lfo });
+  console.log('main.js', lfo);
+
+  let lastTarget = NONE_TARGET;
+  const lfoBlade = lfoFld.addBlade({
+    label: name + ' target',
+    view: 'list',
+    options: modedParams.map(value => ({ text: value, value })),
+    value: NONE_TARGET,
+  }).on('change', e => {
+    const { value: target } = e;
+    if (target === NONE_TARGET) {
+      if (lastTarget !== NONE_TARGET)
+        modulated.unbind(O, lastTarget);
+    }
+    else
+      modulated.bind(O, target);
+
+    lastTarget = target;
+  });
+
+  const PANE_NAME = 'amp/freq/phase';
+  const _O = { [PANE_NAME]: { x: 0, y: 0, z: 0 } };
+  objProp.ref(_O[PANE_NAME], 'x', lfo, 'amp');
+  objProp.ref(_O[PANE_NAME], 'y', lfo, 'freq');
+  objProp.ref(_O[PANE_NAME], 'z', lfo, 'phase');
+
+  const XY_MINMAX = { min: -5, max: 5 };
+  lfoFld.addInput(_O, PANE_NAME, {
+    x: XY_MINMAX,
+    y: XY_MINMAX,
+    z: { min: 0, max: 1 },
+  });
+  // lfoFld.addInput(lfo, 'amp');
+  // lfoFld.addInput(lfo, 'freq');
+}
+
+// addLFO('LFO1');
+// addLFO('LFO2');
+
+
 let preset = presets.list[presets.current];
 if (!preset) {
   preset = presets.list[DEFAULT_PRESET];
@@ -174,6 +231,8 @@ function drawCircle (ctx, circle) {
 
 const feedback = new Offscreen({ parent: art, padding: 50, real: false });
 window.$feedback = feedback;
+
+const circlesScreen = new Offscreen({ parent: art, real: false, alpha: true });
 
 function init () {
   feedback.clear();
@@ -231,8 +290,11 @@ function animate (c, circles) {
     mon.dynVol = avgVol - minVol;
   }
 
+  feMorphology.radius = O.morphRad;
+  feConvolve.radius = O.edgeRad;
+
   feedback.letThrough(
-    `blur(${ oscBlur }px) contrast(${ oscContrast }) contrast(${ 1/(O.invContrast ? oscContrast : 1) }) opacity(${ O.opacity })`,
+    `blur(${ O.blur }px) contrast(${ oscContrast }) contrast(${ 1/(O.invContrast ? oscContrast : 1) }) opacity(${ O.opacity })`,
     null,
     ({ ctx }) => {
       art.ctx.translate(O.translate.x, O.translate.y);
@@ -240,13 +302,15 @@ function animate (c, circles) {
     }
   );
 
-  if (O.micOn)
+  if (O.micOn && O.spectrum)
     drawSpectrum(art, mic.freqData, 480);
 
   art.ctx.setTransform(1, 0, 0, 1, 0, 0);
-  art.ctx.filter = 'none'; 
+  art.ctx.filter = 'none';
 
-  circles.forEach((circle, i) => drawCircle(art.ctx, circle, i));
+  circlesScreen.clear(true);
+  circles.forEach((circle, i) => drawCircle(circlesScreen.ctx, circle, i));
+  (O.feedbackOnly ? feedback : art ).putImage(circlesScreen);
 
   return p;
 };

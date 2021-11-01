@@ -1,5 +1,5 @@
 import { clamp } from 'ish-utils/math';
-import { assignDefaults } from 'ish-utils/common';
+import { assignDefaults, objProp } from 'ish-utils/common';
 
 export class Modulated {
   constructor (opts = {}) {
@@ -10,10 +10,14 @@ export class Modulated {
       clamp: false,
       modulator: v => v,
     });
+    console.log('Modulated.js', this);
   }
 
+  valueOf () { return this.value }
+  toString () { return this.value }
+
   get value () {
-    const value = this.modulator(this._value);
+    const value = this.modulator.process(this._value);
     return this.clamp ? 
       clamp(this.min, this.max, value)
     : value;
@@ -22,26 +26,64 @@ export class Modulated {
   set value (v) {
     return this._value = v;
   }
-}
 
-export function LFO (opts = {}) {
-
-  let now = Date.now();
-  function LFO (value) {
-    const { fn, freq, amp } = LFO;
-    now = Date.now();
-    const mod = fn(now * freq / 1e3) * amp;
-    return value + mod;
+  bind (obj, target) {
+    this.target = target;
+    this.value = obj[target];
+    objProp(obj, target, {
+      get: () => this.value,
+      set: (v) => (this.value = v),
+    }, 'C');
+    return this;
   }
 
-  assignDefaults(LFO, opts, {
-    amp: 1,
-    freq: 1,
-    // phase: 0, // rads
-    fn: LFO.SIN,
-  });
+  unbind (obj, target, opts = 'CW') {
+    objProp(obj, target, this._value, opts);
+    this.target = null;
+    this.value = null;
+    return this;
+  }
+}
 
-  return LFO;
+// export function LFO (opts = {}) {
+
+//   let now = Date.now();
+//   function LFO_ (value) {
+//     const { fn, freq, amp } = LFO_;
+//     now = Date.now();
+//     const mod = fn(now * freq / 1e3) * amp;
+//     return value + mod;
+//   }
+
+//   assignDefaults(LFO_, opts, {
+//     amp: 1,
+//     freq: 1,
+//     // phase: 0, // rads
+//     fn: LFO.SIN,
+//   });
+
+//   return LFO_;
+// }
+
+export class LFO {
+  constructor (opts = {}) {
+    assignDefaults(this, opts, {
+      amp: 1,
+      freq: 1,
+      phase: 0, // rads
+      fn: LFO.SIN,
+    });
+
+    this.lastTime = Date.now();
+  }
+
+  process (value) {
+    const { fn, freq, amp, phase } = this;
+    const now = Date.now() - this.lastTime;
+    const mod = fn(now * freq / 1e3 + phase * 2) * amp;
+    this.lastTime = now;
+    return value + mod;
+  }
 }
 
 LFO.SIN = (t) => Math.cos(t * Math.PI);

@@ -2,7 +2,7 @@ import Vec from 'ish-utils/PVector';
 import { rand, lerp, smoothstep, clamp,
   circularEaseOut, doubleExponentialSeat, doubleExponentialSigmoid
 } from 'ish-utils/math';
-import { checkEdges, checkEdgesMirror } from './utils/common';
+import { checkEdges, checkEdgesMirror, perf } from './utils/common';
 import Simplex from 'simplex-noise';
 import * as QT from 'js-quadtree';
 
@@ -146,14 +146,26 @@ const cmds = {
     mouse && (lastMouseIter = iters);
     useQuadTree = P.turbulence && iters > 100 && (!mouse && (iters - lastMouseIter > 100));
     if (useQuadTree) {
+      // const p = perf('qt.insert');
       qt = new QT.QuadTree(new QT.Box(0, 0, W, H), qtConfig);
       circles.forEach((circle, cInd) => {
         qt.insert(new QT.Point(circle.pos.x, circle.pos.y, cInd));
       });
+      // p();
     }
 
     let timeToQtQuery = 0;
 
+    let turbForces;
+    if (P.turbulence) {
+      // const p = perf('TF.getForces')
+      turbField.bounds = { bound: 240, W, H };
+      turbForces = circles
+        .map(circle => turbField.getAngledForce({ ...circle.pos, z: turbMorph }));
+      // p();
+    }
+
+    // const p = perf('circles.forEach');
     circles.forEach((circle, k) => {
       if (mouse) {
         const desire = Vec.sub(new Vec(mouse), circle.pos);
@@ -181,14 +193,8 @@ const cmds = {
 
       const bound = 240;
 
-      if (P.turbulence) {
-        const turbForce = turbField.getForce(
-          { ...circle.pos, z: turbMorph },
-          { bound: 240, W, H },
-        );
-
-        circle.applyForce(turbForce);
-      }
+      if (P.turbulence)
+        circle.applyForce(turbForces[k]);
 
       if (P.mirrorEdges)
         checkEdges(circle, W, H);
@@ -200,6 +206,7 @@ const cmds = {
 
       circle.update();
     });
+    // p();
 
     const amountDiff = P.amount - circles.length;
     if (amountDiff < 0) {
