@@ -1,4 +1,4 @@
-import { invlerp } from 'ish-utils/math';
+import { invlerp } from '@ish_/utils/math';
 
 const MAX8b = 255;
 

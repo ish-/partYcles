@@ -1,5 +1,5 @@
-import Vec from 'ish-utils/PVector';
-import { debounce } from 'ish-utils/common';
+import Vec from '@ish_/utils/PVector';
+import { debounce } from '@ish_/utils/common';
 
 const _bindKeys = {
   's': 'savePng',

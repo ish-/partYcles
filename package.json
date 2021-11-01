@@ -12,8 +12,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@ish_/utils": "^0.0.1",
     "bokal-sourage": "^0.0.3",
-    "ish-utils": "^0.0.1",
+    "@ish_/utils": "^0.0.1",
     "js-quadtree": "^3.3.6",
     "query-string": "^7.0.1",
     "simplex-noise": "^3.0.0",

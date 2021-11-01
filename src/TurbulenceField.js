@@ -1,6 +1,6 @@
-import Vec from 'ish-utils/PVector';
+import Vec from '@ish_/utils/PVector';
 import Simplex from 'simplex-noise';
-import { smoothstep } from 'ish-utils/math';
+import { smoothstep } from '@ish_/utils/math';
 
 const Y_OFFSET = 1000;
 

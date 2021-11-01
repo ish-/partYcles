@@ -1,7 +1,7 @@
-import Vec from 'ish-utils/PVector';
+import Vec from '@ish_/utils/PVector';
 import { rand, lerp, smoothstep, clamp,
   circularEaseOut, doubleExponentialSeat, doubleExponentialSigmoid
-} from 'ish-utils/math';
+} from '@ish_/utils/math';
 import { checkEdges, checkEdgesMirror, perf } from './utils/common';
 import Simplex from 'simplex-noise';
 import * as QT from 'js-quadtree';

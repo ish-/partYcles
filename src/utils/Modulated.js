@@ -1,5 +1,5 @@
-import { clamp } from 'ish-utils/math';
-import { assignDefaults, objProp } from 'ish-utils/common';
+import { clamp } from '@ish_/utils/math';
+import { assignDefaults, objProp } from '@ish_/utils/common';
 
 export class Modulated {
   constructor (opts = {}) {
@@ -10,7 +10,6 @@ export class Modulated {
       clamp: false,
       modulator: v => v,
     });
-    console.log('Modulated.js', this);
   }
 
   valueOf () { return this.value }

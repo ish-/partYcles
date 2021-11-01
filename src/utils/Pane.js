@@ -1,5 +1,5 @@
 import { record } from './common';
-import { jsonCopy } from 'ish-utils/common';
+import { jsonCopy } from '@ish_/utils/common';
 import bs from './bokalSourage';
 import qs from './qs';
 

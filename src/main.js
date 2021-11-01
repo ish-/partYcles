@@ -2,8 +2,8 @@ import { Pane } from 'tweakpane';
 
 import { askWorker, sendWorker, descriptForWorker,
   record } from './utils/common';
-import { jsonCopy, objProp } from 'ish-utils/common';
-import { lerp, invlerp } from 'ish-utils/math';
+import { jsonCopy, objProp } from '@ish_/utils/common';
+import { lerp, invlerp } from '@ish_/utils/math';
 import qs from './utils/qs';
 
 import { MicAnalyzer, drawSpectrum } from './utils/Audio';
