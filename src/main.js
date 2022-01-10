@@ -15,12 +15,13 @@ import Offscreen from './utils/Offscreen';
 import palletes from './palletes';
 
 import defaultPresets from './defaultPresets';
+import protoPreset from './protoPreset';
 import { checkUserEnv } from './utils/userEnv';
 
 checkUserEnv();
 
 const DEFAULT_PRESET = 'Default';
-const modedParams = ['None', 'contrast','blur','opacity','opacityCanv','morphRad','edgeRad'];
+const modedParams = ['None', 'contrast','blur','opacity','opacityCanv','morphRad','edgeRad', 'size'];
 
 const circlesWorker = new Worker(new URL('./worker.js', import.meta.url), {
   name: 'circlesWorker',
@@ -28,9 +29,7 @@ const circlesWorker = new Worker(new URL('./worker.js', import.meta.url), {
   // type: import.meta.env.MODE === 'development' ? "module" : "classic",
 });
 
-let CIRCLE_R = 3;
-
-let W, H, O = {};
+let W, H, O = protoPreset;
 const art = new Sketch({
   /*width: 1280, height: 720, */
   fullwidth: true,
@@ -40,8 +39,9 @@ const art = new Sketch({
       art.$stats.style.display = pane.expanded ? 'inline-block' : 'none';
     },
     o (e) { fxFld.expanded = !fxFld.expanded },
+    u (e) { lfoFld.expanded = !lfoFld.expanded },
+    n (e) { micFld.expanded = !micFld.expanded },
     i (e) { partsFld.expanded = !partsFld.expanded },
-    u (e) { vibrsFld.expanded = !vibrsFld.expanded },
     q (e) { toggleRecording() },
     '/': init,
   },
@@ -97,10 +97,31 @@ const presets = new Presets({
 
 const { toggleRecording } = new SketchControls(ctrls, art, init);
 
-if (!O.hasOwnProperty('micOn'))
-  O.micOn = true;
-ctrls.addInput(O, 'micOn');
-ctrls.addInput(O, 'spectrum');
+const mic = new MicAnalyzer();
+mic.onReady = init;
+
+const mon = { avgVol: 0, minVol: 0, dynVol: 0 };
+// const micFld = pane.addFolder({ title: 'Mic [M]' });
+
+// const interval = 50;
+// micFld.addMonitor(mon, 'avgVol', {
+//   view: 'graph',
+//   min: 0, max: 1, interval,
+// });
+
+// micFld.addMonitor(mon, 'minVol', {
+//   view: 'graph',
+//   min: 0, max: 1, interval,
+// });
+
+// micFld.addMonitor(mon, 'dynVol', {
+//   view: 'graph',
+//   min: 0, max: .5, interval,
+// });
+
+const micFld = ctrls.addFolder({ title: 'Mic [N]' })
+micFld.addInput(O, 'micOn');
+micFld.addInput(O, 'spectrum');
 
 const step = .001;
 const fxFld = ctrls.addFolder({ title: 'Effects [O]' });
@@ -137,41 +158,23 @@ partsFld.addInput(O, 'wind', { min: -3, max: 3 });
 partsFld.addInput(O, 'gravity', { min: -3, max: 3 });
 partsFld.addInput(O, 'turbulence');
 partsFld.addInput(O, 'turbMorph', { min: 0, max: 300 });
-// partsFld.addButton({ title: 'Respawn particles [B]' }).on('click', () => init());
-
-const vibrsFld = ctrls.addFolder({ title: 'Vibrations (Freq / Amp) [U]' });
-vibrsFld.addInput(O, 'contrastVibr', {
-  x: { min: 0, max: 3 },
-  y: { min: 0, max: 3 },
-});
-vibrsFld.addInput(O, 'blurVibr', {
-  x: { min: 0, max: 3 },
-  y: { min: 0, max: 3 },
-});
-vibrsFld.addInput(O, 'sizeVibr', {
-  x: { min: 0, max: 50 },
-  y: { min: 0, max: 3 },
-});
-
-const NONE_TARGET = 'None';
-const lfoFld = ctrls.addFolder({ title: 'LFOs [L]' });
-
-// LFO 1
-// O.lfo1target = NONE_TARGET;
 
 
-function addLFO (name) {
+// MODULATORS
+const lfoFld = ctrls.addFolder({ title: 'LFOs [U]' });
+const NONE_TARGET = '';
+
+function addLFO (name, opts) {
   const lfo = new LFO({ amp: .5, freq: 1 });
 
   const modulated = new Modulated({ modulator: lfo });
-  console.log('main.js', lfo);
 
   let lastTarget = NONE_TARGET;
   const lfoBlade = lfoFld.addBlade({
     label: name + ' target',
     view: 'list',
     options: modedParams.map(value => ({ text: value, value })),
-    value: NONE_TARGET,
+    value: opts.target || NONE_TARGET,
   }).on('change', e => {
     const { value: target } = e;
     if (target === NONE_TARGET) {
@@ -185,44 +188,81 @@ function addLFO (name) {
   });
 
   const PANE_NAME = 'amp/freq/phase';
-  const _O = { [PANE_NAME]: { x: 0, y: 0, z: 0 } };
-  objProp.ref(_O[PANE_NAME], 'x', lfo, 'amp');
-  objProp.ref(_O[PANE_NAME], 'y', lfo, 'freq');
-  objProp.ref(_O[PANE_NAME], 'z', lfo, 'phase');
-
-  const XY_MINMAX = { min: -5, max: 5 };
-  lfoFld.addInput(_O, PANE_NAME, {
+  const localPane = { [PANE_NAME]: opts };
+  objProp.ref(opts, 'x', lfo, 'amp');
+  objProp.ref(opts, 'y', lfo, 'freq');
+  objProp.ref(opts, 'z', lfo, 'phase');
+  const XY_MINMAX = { min: -5, max: 5, step: .1 };
+  // lfoFld.addInput(localPane, PANE_NAME, {
+  //   x: XY_MINMAX,
+  //   y: XY_MINMAX,
+  //   z: { min: 0, max: 1, step: .1  },
+  // });
+  
+  const _o = {
+    get [PANE_NAME] () { return opts },
+    set [PANE_NAME] (o) {
+      console.log('!!', o);
+      Object.assign(opts, o);
+      return o;
+    }
+  };
+  lfoFld.addInput(_o, PANE_NAME, {
     x: XY_MINMAX,
     y: XY_MINMAX,
-    z: { min: 0, max: 1 },
+    z: { min: 0, max: 1, step: .1  },
   });
+
   // lfoFld.addInput(lfo, 'amp');
   // lfoFld.addInput(lfo, 'freq');
 }
 
-// addLFO('LFO1');
+addLFO('LFO1', O.lfo1);
 // addLFO('LFO2');
 
+function addMicModulation (target) {
+  const modulated = new Modulated({
+    modulator: {
+      process: (v) => v + (O.micOn ? mon.avgVol*15-2 : 0),
+    },
+  });
+  let lastTarget = NONE_TARGET;
+
+  micFld.addBlade({
+    label: 'mic target',
+    view: 'list',
+    options: modedParams.map(value => ({ text: value, value })),
+    value: target || NONE_TARGET,
+  }).on('change', e => {
+    const { value: target } = e;
+    if (target === NONE_TARGET) {
+      if (lastTarget !== NONE_TARGET)
+        modulated.unbind(O, lastTarget);
+    }
+    else
+      modulated.bind(O, target);
+    lastTarget = target;
+  });
+}
+
+addMicModulation(O.micTarget);
 
 let preset = presets.list[presets.current];
-if (!preset) {
+if (!preset)
   preset = presets.list[DEFAULT_PRESET];
-  console.log('main.js', ctrls);
-  // ctrls.current = DEFAULT_PRESET;
-}
+console.log('Init \w preset: ', preset);
 pane.importPreset(preset);
 
 
-function drawCircle (ctx, circle) {
+function drawCircle (ctx, circle, i, opts) {
   ctx.beginPath();
-  const colors = palletes[O.color];
+  const { color, size } = opts;
+  const colors = palletes[color];
   ctx.strokeStyle = colors[circle.id % colors.length] + '66';
   ctx.moveTo(circle.lastPos.x, circle.lastPos.y);
-  const avgVol = O.micOn ? mon.avgVol*15-2 : 0;
-  const oscSize = avgVol + O.size + Math.sin(art.iters/100*O.sizeVibr.x+circle.id/10) * O.sizeVibr.y;
-  ctx.lineCap = (oscSize > 2) ? 'round' : 'butt';
-  ctx.lineWidth = oscSize * 2// + circle.atrcTo;
-  if (oscSize > 0) {
+  ctx.lineCap = (size > 2) ? 'round' : 'butt';
+  ctx.lineWidth = size * 2// + circle.atrcTo;
+  if (size > 0) {
     ctx.lineTo(circle.pos.x, circle.pos.y);
     ctx.stroke();
   }
@@ -245,39 +285,10 @@ function init () {
   }).then((circles) => art.animate(animate, circles));
 }
 
-
-const mic = new MicAnalyzer();
-mic.onReady = init;
-
-const mon = { avgVol: 0, minVol: 0, dynVol: 0 };
-// const micFld = pane.addFolder({ title: 'Mic [M]' });
-
-// const interval = 50;
-// micFld.addMonitor(mon, 'avgVol', {
-//   view: 'graph',
-//   min: 0, max: 1, interval,
-// });
-
-// micFld.addMonitor(mon, 'minVol', {
-//   view: 'graph',
-//   min: 0, max: 1, interval,
-// });
-
-// micFld.addMonitor(mon, 'dynVol', {
-//   view: 'graph',
-//   min: 0, max: .5, interval,
-// });
-
-
 let minVol = 0;
 
 function animate (c, circles) {
-  const now = Date.now();
-
   const p = askWorker.call(circlesWorker, 'update', { mouse: art.mouse });
-
-  const oscContrast = O.contrast + Math.sin(c.iters/100*O.contrastVibr.x) * O.contrastVibr.y
-  const oscBlur = O.blur + Math.sin(art.iters/100*O.blurVibr.x) * O.blurVibr.y;
 
   if (O.micOn) {
     const vol = mic.getVol(art.iters);
@@ -294,7 +305,7 @@ function animate (c, circles) {
   feConvolve.radius = O.edgeRad;
 
   feedback.letThrough(
-    `blur(${ O.blur }px) contrast(${ oscContrast }) contrast(${ 1/(O.invContrast ? oscContrast : 1) }) opacity(${ O.opacity })`,
+    `blur(${ O.blur }px) contrast(${ O.contrast }) contrast(${ 1/(O.invContrast ? O.contrast : 1) }) opacity(${ O.opacity })`,
     null,
     ({ ctx }) => {
       art.ctx.translate(O.translate.x, O.translate.y);
@@ -309,7 +320,8 @@ function animate (c, circles) {
   art.ctx.filter = 'none';
 
   circlesScreen.clear(true);
-  circles.forEach((circle, i) => drawCircle(circlesScreen.ctx, circle, i));
+  const opts = { ...O };
+  circles.forEach((circle, i) => drawCircle(circlesScreen.ctx, circle, i, opts));
   (O.feedbackOnly ? feedback : art ).putImage(circlesScreen);
 
   return p;
